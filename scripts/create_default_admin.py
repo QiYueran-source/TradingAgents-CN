@@ -10,8 +10,13 @@
     python scripts/create_default_admin.py
     python scripts/create_default_admin.py --overwrite
     python scripts/create_default_admin.py --username myuser --password mypass123
+
+环境变量（可选）：
+    MONGODB_URL / MONGO_URI — 连接串；Docker 内需指向 mongodb:27017
+    MONGODB_DATABASE — 库名，默认 tradingagentscn
 """
 
+import os
 import sys
 import hashlib
 from datetime import datetime
@@ -25,9 +30,13 @@ sys.path.insert(0, str(project_root))
 from pymongo import MongoClient
 
 
-# 配置
-MONGO_URI = "mongodb://admin:tradingagents123@localhost:27017/tradingagentscn?authSource=admin"
-DB_NAME = "tradingagentscn"
+# 配置（宿主机默认 localhost；Docker 内设置 MONGODB_URL 指向 mongodb:27017）
+MONGO_URI = (
+    os.getenv("MONGODB_URL")
+    or os.getenv("MONGO_URI")
+    or "mongodb://admin:tradingagents123@localhost:27017/tradingagentscn?authSource=admin"
+)
+DB_NAME = os.getenv("MONGODB_DATABASE", "tradingagentscn")
 
 
 def hash_password(password: str) -> str:

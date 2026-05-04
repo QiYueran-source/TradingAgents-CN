@@ -121,6 +121,23 @@ services:
         max-size: "50m"
         max-file: "2"
 
+  # 创建默认管理员（按需执行：docker compose --profile setup run --rm seed-default-admin）
+  seed-default-admin:
+    image: tradingagents-backend:v1.0.0-preview
+    container_name: tradingagents-seed-admin
+    restart: "no"
+    profiles:
+      - setup
+    networks:
+      - tradingagents-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGODB_URL: mongodb://admin:tradingagents123@mongodb:27017/tradingagentscn?authSource=admin
+      MONGODB_DATABASE: tradingagentscn
+    command: ["python", "/app/scripts/create_default_admin.py"]
+
   # Redis 缓存服务
   redis:
     image: redis:7-alpine
